@@ -30,19 +30,18 @@ if (!defined('_CAN_LOAD_FILES_')) {
 
 use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
 
-class Blocksocial extends Module implements WidgetInterface
+class Ps_Socialfollow extends Module implements WidgetInterface
 {
     public function __construct()
     {
-        $this->name = 'blocksocial';
-        $this->tab = 'front_office_features';
-        $this->version = '2.0';
+        $this->name = 'ps_socialfollow';
+        $this->version = '1.0.0';
         $this->author = 'PrestaShop';
 
         $this->bootstrap = true;
         parent::__construct();
 
-        $this->displayName = $this->l('Social networking block');
+        $this->displayName = $this->l('Social media follow links');
         $this->description = $this->l('Allows you to add information about your brand\'s social networking accounts.');
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
     }
@@ -184,11 +183,11 @@ class Blocksocial extends Module implements WidgetInterface
 
     public function renderWidget($hookName = null, array $configuration = [])
     {
-        if (!$this->isCached('blocksocial.tpl', $this->getCacheId())) {
+        if (!$this->isCached('ps_socialfollow.tpl', $this->getCacheId())) {
             $this->smarty->assign($this->getWidgetVariables($hookName, $configuration));
         }
 
-        return $this->display(__FILE__, 'blocksocial.tpl', $this->getCacheId());
+        return $this->display(__FILE__, 'ps_socialfollow.tpl', $this->getCacheId());
     }
 
     public function getWidgetVariables($hookName = null, array $configuration = [])

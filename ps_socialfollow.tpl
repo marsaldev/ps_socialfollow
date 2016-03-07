@@ -24,9 +24,9 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
-{block name='block_social'}
-  <div class="block-social">
-    <h4>{l s='Follow us' mod='blocksocial'}</h4>
+{block name='ps_social_follow'}
+  <div class="ps-social-follow">
+    <h4>{l s='Follow us' mod='ps_socialfollow'}</h4>
     <ul>
       {foreach from=$social_links item='social_link'}
         <li class="{$social_link.class}"><a href="{$social_link.url}">{$social_link.label}</a></li>

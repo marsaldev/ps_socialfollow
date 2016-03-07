@@ -1,7 +1,7 @@
 {
-  "name": "prestashop/blocksocial",
-  "description": "PrestaShop module blocksocial",
-  "homepage": "https://github.com/PrestaShop/blocksocial",
+  "name": "prestashop/ps_socialfollow",
+  "description": "PrestaShop module ps_socialfollow",
+  "homepage": "https://github.com/PrestaShop/ps_socialfollow",
   "license": "AFL - Academic Free License (AFL 3.0)",
   "authors": [
     {
@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "php": ">=5.3.2"
+    "php": ">=5.4"
   },
   "config": {
     "preferred-install": "dist"
