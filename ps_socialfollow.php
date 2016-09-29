@@ -86,7 +86,6 @@ class Ps_Socialfollow extends Module implements WidgetInterface
             Configuration::updateValue('BLOCKSOCIAL_PINTEREST', Tools::getValue('blocksocial_pinterest', ''));
             Configuration::updateValue('BLOCKSOCIAL_VIMEO', Tools::getValue('blocksocial_vimeo', ''));
             Configuration::updateValue('BLOCKSOCIAL_INSTAGRAM', Tools::getValue('blocksocial_instagram', ''));
-            $this->_clearCache('blocksocial.tpl');
             Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules').'&configure='.$this->name.'&tab_module='.$this->tab.'&conf=4&module_name='.$this->name);
         }
 
@@ -183,11 +182,9 @@ class Ps_Socialfollow extends Module implements WidgetInterface
 
     public function renderWidget($hookName = null, array $configuration = [])
     {
-        if (!$this->isCached('ps_socialfollow.tpl', $this->getCacheId())) {
-            $this->smarty->assign($this->getWidgetVariables($hookName, $configuration));
-        }
+        $this->smarty->assign($this->getWidgetVariables($hookName, $configuration));
 
-        return $this->display(__FILE__, 'ps_socialfollow.tpl', $this->getCacheId());
+        return $this->fetch('module:ps_socialfollow/ps_socialfollow.tpl');
     }
 
     public function getWidgetVariables($hookName = null, array $configuration = [])
