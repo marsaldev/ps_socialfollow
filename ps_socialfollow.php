@@ -32,23 +32,29 @@ use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
 
 class Ps_Socialfollow extends Module implements WidgetInterface
 {
+    private $templateFile;
+
     public function __construct()
     {
         $this->name = 'ps_socialfollow';
-        $this->version = '1.0.2';
         $this->author = 'PrestaShop';
+        $this->version = '1.0.2';
 
         $this->bootstrap = true;
         parent::__construct();
 
         $this->displayName = $this->getTranslator()->trans('Social media follow links', array(), 'Modules.SocialFollow.Admin');
         $this->description = $this->getTranslator()->trans('Allows you to add information about your brand\'s social networking accounts.', array(), 'Modules.SocialFollow.Admin');
+
         $this->ps_versions_compliancy = array('min' => '1.7.0.0', 'max' => _PS_VERSION_);
+
+        $this->templateFile = 'module:ps_socialfollow/ps_socialfollow.tpl';
     }
 
     public function install()
     {
-        return (parent::install() and Configuration::updateValue('BLOCKSOCIAL_FACEBOOK', '') &&
+        return (parent::install() &&
+            Configuration::updateValue('BLOCKSOCIAL_FACEBOOK', '') &&
             Configuration::updateValue('BLOCKSOCIAL_TWITTER', '') &&
             Configuration::updateValue('BLOCKSOCIAL_RSS', '') &&
             Configuration::updateValue('BLOCKSOCIAL_YOUTUBE', '') &&
@@ -61,7 +67,6 @@ class Ps_Socialfollow extends Module implements WidgetInterface
 
     public function uninstall()
     {
-        //Delete configuration
         return (Configuration::deleteByName('BLOCKSOCIAL_FACEBOOK') &&
             Configuration::deleteByName('BLOCKSOCIAL_TWITTER') &&
             Configuration::deleteByName('BLOCKSOCIAL_RSS') &&
@@ -75,8 +80,6 @@ class Ps_Socialfollow extends Module implements WidgetInterface
 
     public function getContent()
     {
-        // If we try to update the settings
-        $output = '';
         if (Tools::isSubmit('submitModule')) {
             Configuration::updateValue('BLOCKSOCIAL_FACEBOOK', Tools::getValue('blocksocial_facebook', ''));
             Configuration::updateValue('BLOCKSOCIAL_TWITTER', Tools::getValue('blocksocial_twitter', ''));
@@ -86,10 +89,18 @@ class Ps_Socialfollow extends Module implements WidgetInterface
             Configuration::updateValue('BLOCKSOCIAL_PINTEREST', Tools::getValue('blocksocial_pinterest', ''));
             Configuration::updateValue('BLOCKSOCIAL_VIMEO', Tools::getValue('blocksocial_vimeo', ''));
             Configuration::updateValue('BLOCKSOCIAL_INSTAGRAM', Tools::getValue('blocksocial_instagram', ''));
+
+            $this->_clearCache('*');
+
             Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules').'&configure='.$this->name.'&tab_module='.$this->tab.'&conf=4&module_name='.$this->name);
         }
 
-        return $output.$this->renderForm();
+        return $this->renderForm();
+    }
+
+    public function _clearCache($template, $cache_id = null, $compile_id = null)
+    {
+        parent::_clearCache($this->templateFile);
     }
 
     public function renderForm()
@@ -163,6 +174,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
         $helper->tpl_vars = array(
             'fields_value' => $this->getConfigFieldsValues(),
         );
+
         return $helper->generateForm(array($fields_form));
     }
 
@@ -182,81 +194,83 @@ class Ps_Socialfollow extends Module implements WidgetInterface
 
     public function renderWidget($hookName = null, array $configuration = [])
     {
-        $this->smarty->assign($this->getWidgetVariables($hookName, $configuration));
+        if (!$this->isCached($this->templateFile, $this->getCacheId('ps_socialfollow'))) {
+            $this->smarty->assign($this->getWidgetVariables($hookName, $configuration));
+        }
 
-        return $this->fetch('module:ps_socialfollow/ps_socialfollow.tpl');
+        return $this->fetch($this->templateFile, $this->getCacheId('ps_socialfollow'));
     }
 
     public function getWidgetVariables($hookName = null, array $configuration = [])
     {
         $social_links = [];
 
-        if (Configuration::get('BLOCKSOCIAL_FACEBOOK')) {
+        if ($sf_facebook = Configuration::get('BLOCKSOCIAL_FACEBOOK')) {
             $social_links['facebook'] = [
                 'label' => $this->getTranslator()->trans('Facebook', array(), 'Modules.SocialFollow.Shop'),
                 'class' => 'facebook',
-                'url' => Configuration::get('BLOCKSOCIAL_FACEBOOK'),
+                'url' => $sf_facebook,
             ];
         }
 
-        if (Configuration::get('BLOCKSOCIAL_TWITTER')) {
+        if ($sf_twitter = Configuration::get('BLOCKSOCIAL_TWITTER')) {
             $social_links['twitter'] = [
                 'label' => $this->getTranslator()->trans('Twitter', array(), 'Modules.SocialFollow.Shop'),
                 'class' => 'twitter',
-                'url' => Configuration::get('BLOCKSOCIAL_TWITTER'),
+                'url' => $sf_twitter,
             ];
         }
 
-        if (Configuration::get('BLOCKSOCIAL_RSS')) {
+        if ($sf_rss = Configuration::get('BLOCKSOCIAL_RSS')) {
             $social_links['rss'] = [
                 'label' => $this->getTranslator()->trans('Rss', array(), 'Modules.SocialFollow.Shop'),
                 'class' => 'rss',
-                'url' => Configuration::get('BLOCKSOCIAL_RSS'),
+                'url' => $sf_rss,
             ];
         }
 
-        if (Configuration::get('BLOCKSOCIAL_YOUTUBE')) {
+        if ($sf_youtube = Configuration::get('BLOCKSOCIAL_YOUTUBE')) {
             $social_links['youtube'] = [
                 'label' => $this->getTranslator()->trans('YouTube', array(), 'Modules.SocialFollow.Shop'),
                 'class' => 'youtube',
-                'url' => Configuration::get('BLOCKSOCIAL_YOUTUBE'),
+                'url' => $sf_youtube,
             ];
         }
 
-        if (Configuration::get('BLOCKSOCIAL_GOOGLE_PLUS')) {
+        if ($sf_googleplus = Configuration::get('BLOCKSOCIAL_GOOGLE_PLUS')) {
             $social_links['googleplus'] = [
                 'label' => $this->getTranslator()->trans('Google +', array(), 'Modules.SocialFollow.Shop'),
                 'class' => 'googleplus',
-                'url' => Configuration::get('BLOCKSOCIAL_GOOGLE_PLUS'),
+                'url' => $sf_googleplus,
             ];
         }
 
-        if (Configuration::get('BLOCKSOCIAL_PINTEREST')) {
+        if ($sf_pinterest = Configuration::get('BLOCKSOCIAL_PINTEREST')) {
             $social_links['pinterest'] = [
                 'label' => $this->getTranslator()->trans('Pinterest', array(), 'Modules.SocialFollow.Shop'),
                 'class' => 'pinterest',
-                'url' => Configuration::get('BLOCKSOCIAL_PINTEREST'),
+                'url' => $sf_pinterest,
             ];
         }
 
-        if (Configuration::get('BLOCKSOCIAL_VIMEO')) {
+        if ($sf_vimeo = Configuration::get('BLOCKSOCIAL_VIMEO')) {
             $social_links['vimeo'] = [
                 'label' => $this->getTranslator()->trans('Vimeo', array(), 'Modules.SocialFollow.Shop'),
                 'class' => 'vimeo',
-                'url' => Configuration::get('BLOCKSOCIAL_VIMEO'),
+                'url' => $sf_vimeo,
             ];
         }
 
-        if (Configuration::get('BLOCKSOCIAL_INSTAGRAM')) {
+        if ($sf_instagram = Configuration::get('BLOCKSOCIAL_INSTAGRAM')) {
             $social_links['instagram'] = [
                 'label' => $this->getTranslator()->trans('Instagram', array(), 'Modules.SocialFollow.Shop'),
                 'class' => 'instagram',
-                'url' => Configuration::get('BLOCKSOCIAL_INSTAGRAM'),
+                'url' => $sf_instagram,
             ];
         }
 
-        return [
+        return array(
             'social_links' => $social_links,
-        ];
+        );
     }
 }
