@@ -61,6 +61,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
             Configuration::updateValue('BLOCKSOCIAL_PINTEREST', '') &&
             Configuration::updateValue('BLOCKSOCIAL_VIMEO', '') &&
             Configuration::updateValue('BLOCKSOCIAL_INSTAGRAM', '') &&
+            Configuration::updateValue('BLOCKSOCIAL_LINKEDIN', '') &&
             $this->registerHook('displayFooter'));
     }
 
@@ -73,6 +74,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
             Configuration::deleteByName('BLOCKSOCIAL_PINTEREST') &&
             Configuration::deleteByName('BLOCKSOCIAL_VIMEO') &&
             Configuration::deleteByName('BLOCKSOCIAL_INSTAGRAM') &&
+            Configuration::deleteByName('BLOCKSOCIAL_LINKEDIN') &&
             parent::uninstall());
     }
 
@@ -86,6 +88,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
             Configuration::updateValue('BLOCKSOCIAL_PINTEREST', Tools::getValue('blocksocial_pinterest', ''));
             Configuration::updateValue('BLOCKSOCIAL_VIMEO', Tools::getValue('blocksocial_vimeo', ''));
             Configuration::updateValue('BLOCKSOCIAL_INSTAGRAM', Tools::getValue('blocksocial_instagram', ''));
+            Configuration::updateValue('BLOCKSOCIAL_LINKEDIN', Tools::getValue('blocksocial_linkedin', ''));
 
             $this->_clearCache('*');
 
@@ -151,6 +154,12 @@ class Ps_Socialfollow extends Module implements WidgetInterface
                         'name' => 'blocksocial_instagram',
                         'desc' => $this->trans('Your official Instagram account.', array(), 'Modules.Socialfollow.Admin'),
                     ),
+                    array(
+                        'type' => 'text',
+                        'label' => $this->trans('LinkedIn URL:', array(), 'Modules.Socialfollow.Admin'),
+                        'name' => 'blocksocial_linkedin',
+                        'desc' => $this->trans('Your official LinkedIn account.', array(), 'Modules.Socialfollow.Admin'),
+                    ),
                 ),
                 'submit' => array(
                     'title' => $this->trans('Save', array(), 'Admin.Global'),
@@ -179,6 +188,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
             'blocksocial_pinterest' => Tools::getValue('blocksocial_pinterest', Configuration::get('BLOCKSOCIAL_PINTEREST')),
             'blocksocial_vimeo' => Tools::getValue('blocksocial_vimeo', Configuration::get('BLOCKSOCIAL_VIMEO')),
             'blocksocial_instagram' => Tools::getValue('blocksocial_instagram', Configuration::get('BLOCKSOCIAL_INSTAGRAM')),
+            'blocksocial_linkedin' => Tools::getValue('blocksocial_linkedin', Configuration::get('BLOCKSOCIAL_LINKEDIN')),
         );
     }
 
@@ -248,6 +258,14 @@ class Ps_Socialfollow extends Module implements WidgetInterface
                 'label' => $this->trans('Instagram', array(), 'Modules.Socialfollow.Shop'),
                 'class' => 'instagram',
                 'url' => $sf_instagram,
+            );
+        }
+
+        if ($sf_linkedin = Configuration::get('BLOCKSOCIAL_LINKEDIN')) {
+            $social_links['linkedin'] = array(
+                'label' => $this->trans('LinkedIn', array(), 'Modules.Socialfollow.Shop'),
+                'class' => 'linkedin',
+                'url' => $sf_linkedin,
             );
         }
 
