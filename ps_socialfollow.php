@@ -29,16 +29,29 @@ if (!defined('_CAN_LOAD_FILES_')) {
 }
 
 use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validation;
 
 class Ps_Socialfollow extends Module implements WidgetInterface
 {
     private $templateFile;
 
+    const SOCIAL_NETWORKS = [
+        'facebook',
+        'twitter',
+        'rss',
+        'youtube',
+        'pinterest',
+        'vimeo',
+        'instagram',
+        'linkedin',
+    ];
+
     public function __construct()
     {
         $this->name = 'ps_socialfollow';
         $this->author = 'PrestaShop';
-        $this->version = '2.0.0';
+        $this->version = '2.1.0';
 
         $this->bootstrap = true;
         parent::__construct();
@@ -81,15 +94,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
     public function getContent()
     {
         if (Tools::isSubmit('submitModule')) {
-            Configuration::updateValue('BLOCKSOCIAL_FACEBOOK', Tools::getValue('blocksocial_facebook', ''));
-            Configuration::updateValue('BLOCKSOCIAL_TWITTER', Tools::getValue('blocksocial_twitter', ''));
-            Configuration::updateValue('BLOCKSOCIAL_RSS', Tools::getValue('blocksocial_rss', ''));
-            Configuration::updateValue('BLOCKSOCIAL_YOUTUBE', Tools::getValue('blocksocial_youtube', ''));
-            Configuration::updateValue('BLOCKSOCIAL_PINTEREST', Tools::getValue('blocksocial_pinterest', ''));
-            Configuration::updateValue('BLOCKSOCIAL_VIMEO', Tools::getValue('blocksocial_vimeo', ''));
-            Configuration::updateValue('BLOCKSOCIAL_INSTAGRAM', Tools::getValue('blocksocial_instagram', ''));
-            Configuration::updateValue('BLOCKSOCIAL_LINKEDIN', Tools::getValue('blocksocial_linkedin', ''));
-
+            $this->updateFields();
             $this->_clearCache('*');
 
             Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules').'&configure='.$this->name.'&tab_module='.$this->tab.'&conf=4&module_name='.$this->name);
@@ -180,16 +185,11 @@ class Ps_Socialfollow extends Module implements WidgetInterface
 
     public function getConfigFieldsValues()
     {
-        return array(
-            'blocksocial_facebook' => Tools::getValue('blocksocial_facebook', Configuration::get('BLOCKSOCIAL_FACEBOOK')),
-            'blocksocial_twitter' => Tools::getValue('blocksocial_twitter', Configuration::get('BLOCKSOCIAL_TWITTER')),
-            'blocksocial_rss' => Tools::getValue('blocksocial_rss', Configuration::get('BLOCKSOCIAL_RSS')),
-            'blocksocial_youtube' => Tools::getValue('blocksocial_youtube', Configuration::get('BLOCKSOCIAL_YOUTUBE')),
-            'blocksocial_pinterest' => Tools::getValue('blocksocial_pinterest', Configuration::get('BLOCKSOCIAL_PINTEREST')),
-            'blocksocial_vimeo' => Tools::getValue('blocksocial_vimeo', Configuration::get('BLOCKSOCIAL_VIMEO')),
-            'blocksocial_instagram' => Tools::getValue('blocksocial_instagram', Configuration::get('BLOCKSOCIAL_INSTAGRAM')),
-            'blocksocial_linkedin' => Tools::getValue('blocksocial_linkedin', Configuration::get('BLOCKSOCIAL_LINKEDIN')),
-        );
+        $result = [];
+        foreach (static::SOCIAL_NETWORKS as $social) {
+            $result['blocksocial_' . $social] = Configuration::get('BLOCKSOCIAL_' . strtoupper($social));
+        }
+        return $result;
     }
 
     public function renderWidget($hookName = null, array $configuration = [])
@@ -272,5 +272,24 @@ class Ps_Socialfollow extends Module implements WidgetInterface
         return array(
             'social_links' => $social_links,
         );
+    }
+
+    /**
+     * Update form fields.
+     * Check all social networks form value and verify the URL is valid.
+     * Do nothing if a violation is spotted.
+     */
+    protected function updateFields()
+    {
+        $validator = Validation::createValidator();
+        $constraints = [new Url()];
+
+        foreach (static::SOCIAL_NETWORKS as $social) {
+            $value = Tools::getValue('blocksocial_' . $social, '');
+            $violations = $validator->validate($value, $constraints);
+            if (0 === count($violations)) {
+                Configuration::updateValue('BLOCKSOCIAL_' . strtoupper($social), $value);
+            }
+        }
     }
 }
