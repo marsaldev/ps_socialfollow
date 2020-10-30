@@ -2,7 +2,7 @@
 
 ## About
 
-Allows you to add information about your brand's social networking accounts.
+Facebook, Twitter, let your customers know where to follow you and increase your community.
 
 ## Multistore compatibility
 
