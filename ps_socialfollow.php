@@ -45,10 +45,6 @@ class Ps_Socialfollow extends Module implements WidgetInterface
         'linkedin',
     ];
     private $templateFile;
-    /**
-     * @var string
-     */
-    private $validation_message;
 
     public function __construct()
     {
@@ -96,16 +92,19 @@ class Ps_Socialfollow extends Module implements WidgetInterface
 
     public function getContent()
     {
-        $this->validation_message = '';
+        $html = '';
         if (Tools::isSubmit('submitModule')) {
-            if ($this->updateFields() === true) {
+            $result = $this->updateFields();
+            if ($result === true) {
                 $this->_clearCache('*');
-
                 Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules') . '&configure=' . $this->name . '&tab_module=' . $this->tab . '&conf=4&module_name=' . $this->name);
+            } else {
+                $html .= $this->displayError(implode('<br />', $result));
             }
         }
+        $html .= $this->renderForm();
 
-        return $this->validation_message . $this->renderForm();
+        return $html;
     }
 
     public function _clearCache($template, $cache_id = null, $compile_id = null)
@@ -202,30 +201,42 @@ class Ps_Socialfollow extends Module implements WidgetInterface
     {
         $result = [];
         foreach (static::SOCIAL_NETWORKS as $social) {
-            if (!empty(Configuration::get('BLOCKSOCIAL_' . strtoupper($social)))) {
-                $this->upgradeConfiguration('BLOCKSOCIAL_' . strtoupper($social));
+            $configuration_name = 'BLOCKSOCIAL_' . strtoupper($social);
+            if (!empty(Configuration::get($configuration_name))) {
+                $this->upgradeConfiguration($configuration_name);
             }
             foreach ($this->context->controller->getLanguages() as $lang) {
                 $id_lang = $lang['id_lang'];
-                $conf = Configuration::get('BLOCKSOCIAL_' . strtoupper($social), $id_lang);
-                $result['blocksocial_' . $social][$id_lang] = $conf;
+                $conf = Configuration::get($configuration_name, $id_lang);
+                $result["blocksocial_$social"][$id_lang] = $conf;
             }
         }
         return $result;
     }
 
+    /**
+     * This upgrades the configuration of the module from simple values to localized values. This assures that the
+     * upgrade of the module keeps the old configurations, and that the change is transparent to the user.
+     *
+     * This function is only run once during upgrade, i.e. the first time the user accesses the configuration in the BO
+     * after an upgrade of the module to the localized version.
+     *
+     * @param $name Name of the configuration setting
+     * @return array Configuration value, now localized
+     */
     protected function upgradeConfiguration($name)
     {
-        $conf = Configuration::get($name);
-        if (!empty($conf) && !is_array($conf)) {
-            $conf_localized = [];
+        $value = Configuration::get($name);
+        if (!empty($value) && !is_array($value)) {
+            $value_localized = [];
             foreach ($this->context->controller->getLanguages() as $lang) {
-                $conf_localized[$lang['id_lang']] = $conf;
+                $value_localized[$lang['id_lang']] = $value;
             }
-            Configuration::updateValue($name, $conf_localized);
-            $conf = $conf_localized;
+            Configuration::updateValue($name, $value_localized);
+            $value = $value_localized;
         }
-        return $conf;
+
+        return $value;
     }
 
     public function renderWidget($hookName = null, array $configuration = [])
@@ -315,32 +326,35 @@ class Ps_Socialfollow extends Module implements WidgetInterface
      * Update form fields.
      * Check all social networks form value and verify the URL is valid.
      * Do nothing if a violation is spotted.
+     *
+     * @return array|bool true on success, errors on failure
      */
     protected function updateFields()
     {
         $validator = Validation::createValidator();
         $constraints = [new Url()];
-        $config = [];
+        $values = [];
         $errors = [];
         foreach (static::SOCIAL_NETWORKS as $social) {
             foreach ($this->context->controller->getLanguages() as $lang) {
                 $id_lang = $lang['id_lang'];
-                $config[$social][$id_lang] = Tools::getValue('blocksocial_' . $social . '_' . $id_lang, '');
-                $violations = $validator->validate($config[$social][$id_lang], $constraints);
+                $values[$social][$id_lang] = Tools::getValue("blocksocial_{$social}_{$id_lang}", '');
+                $violations = $validator->validate($values[$social][$id_lang], $constraints);
+
                 if (count($violations)) {
-                    $errors[] = $this->trans('Invalid URL', [], 'Admin.Notifications.Error') . ': ' . $config[$social][$id_lang];
+                    $errors[] = $this->trans('Invalid URL', [], 'Admin.Notifications.Error') . ': ' . $values[$social][$id_lang];
                 }
             }
-
         }
+
         if (empty($errors)) {
             foreach (static::SOCIAL_NETWORKS as $social) {
-                Configuration::updateValue('BLOCKSOCIAL_' . strtoupper($social), $config[$social]);
+                Configuration::updateValue('BLOCKSOCIAL_' . strtoupper($social), $values[$social]);
             }
-        } else {
-            $this->validation_message = $this->displayError(implode('<br />', $errors));
-            return false;
+
+            return true;
         }
-        return true;
+
+        return $errors;
     }
 }
