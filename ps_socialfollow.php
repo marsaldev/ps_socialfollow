@@ -35,14 +35,14 @@ use Symfony\Component\Validator\Validation;
 class Ps_Socialfollow extends Module implements WidgetInterface
 {
     const SOCIAL_NETWORKS = [
-        'facebook',
-        'twitter',
-        'rss',
-        'youtube',
-        'pinterest',
-        'vimeo',
-        'instagram',
-        'linkedin',
+        'FACEBOOK',
+        'TWITTER',
+        'RSS',
+        'YOUTUBE',
+        'PINTEREST',
+        'VIMEO',
+        'INSTAGRAM',
+        'LINKEDIN',
     ];
     private $templateFile;
 
@@ -97,7 +97,12 @@ class Ps_Socialfollow extends Module implements WidgetInterface
             $result = $this->updateFields();
             if ($result === true) {
                 $this->_clearCache('*');
-                Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules') . '&configure=' . $this->name . '&tab_module=' . $this->tab . '&conf=4&module_name=' . $this->name);
+                Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules', true, [], [
+                    'configure' => $this->name,
+                    'tab_module' => $this->tab,
+                    'conf' => 4,
+                    'module_name' => $this->name
+                ]));
             } else {
                 $html .= $this->displayError(implode('<br />', $result));
             }
@@ -125,56 +130,56 @@ class Ps_Socialfollow extends Module implements WidgetInterface
                         'type' => 'text',
                         'lang' => true,
                         'label' => $this->trans('Facebook URL', array(), 'Modules.Socialfollow.Admin'),
-                        'name' => 'blocksocial_facebook',
+                        'name' => 'BLOCKSOCIAL_FACEBOOK',
                         'desc' => $this->trans('Your Facebook fan page.', array(), 'Modules.Socialfollow.Admin'),
                     ),
                     array(
                         'type' => 'text',
                         'lang' => true,
                         'label' => $this->trans('Twitter URL', array(), 'Modules.Socialfollow.Admin'),
-                        'name' => 'blocksocial_twitter',
+                        'name' => 'BLOCKSOCIAL_TWITTER',
                         'desc' => $this->trans('Your official Twitter account.', array(), 'Modules.Socialfollow.Admin'),
                     ),
                     array(
                         'type' => 'text',
                         'lang' => true,
                         'label' => $this->trans('RSS URL', array(), 'Modules.Socialfollow.Admin'),
-                        'name' => 'blocksocial_rss',
+                        'name' => 'BLOCKSOCIAL_RSS',
                         'desc' => $this->trans('The RSS feed of your choice (your blog, your store, etc.).', array(), 'Modules.Socialfollow.Admin'),
                     ),
                     array(
                         'type' => 'text',
                         'lang' => true,
                         'label' => $this->trans('YouTube URL', array(), 'Modules.Socialfollow.Admin'),
-                        'name' => 'blocksocial_youtube',
+                        'name' => 'BLOCKSOCIAL_YOUTUBE',
                         'desc' => $this->trans('Your official YouTube account.', array(), 'Modules.Socialfollow.Admin'),
                     ),
                     array(
                         'type' => 'text',
                         'lang' => true,
                         'label' => $this->trans('Pinterest URL:', array(), 'Modules.Socialfollow.Admin'),
-                        'name' => 'blocksocial_pinterest',
+                        'name' => 'BLOCKSOCIAL_PINTEREST',
                         'desc' => $this->trans('Your official Pinterest account.', array(), 'Modules.Socialfollow.Admin'),
                     ),
                     array(
                         'type' => 'text',
                         'lang' => true,
                         'label' => $this->trans('Vimeo URL:', array(), 'Modules.Socialfollow.Admin'),
-                        'name' => 'blocksocial_vimeo',
+                        'name' => 'BLOCKSOCIAL_VIMEO',
                         'desc' => $this->trans('Your official Vimeo account.', array(), 'Modules.Socialfollow.Admin'),
                     ),
                     array(
                         'type' => 'text',
                         'lang' => true,
                         'label' => $this->trans('Instagram URL:', array(), 'Modules.Socialfollow.Admin'),
-                        'name' => 'blocksocial_instagram',
+                        'name' => 'BLOCKSOCIAL_INSTAGRAM',
                         'desc' => $this->trans('Your official Instagram account.', array(), 'Modules.Socialfollow.Admin'),
                     ),
                     array(
                         'type' => 'text',
                         'lang' => true,
                         'label' => $this->trans('LinkedIn URL:', array(), 'Modules.Socialfollow.Admin'),
-                        'name' => 'blocksocial_linkedin',
+                        'name' => 'BLOCKSOCIAL_LINKEDIN',
                         'desc' => $this->trans('Your official LinkedIn account.', array(), 'Modules.Socialfollow.Admin'),
                     ),
                 ),
@@ -201,14 +206,13 @@ class Ps_Socialfollow extends Module implements WidgetInterface
     {
         $result = [];
         foreach (static::SOCIAL_NETWORKS as $social) {
-            $configuration_name = 'BLOCKSOCIAL_' . strtoupper($social);
+            $configuration_name = "BLOCKSOCIAL_$social";
             if (!empty(Configuration::get($configuration_name))) {
                 $this->upgradeConfiguration($configuration_name);
             }
-            foreach ($this->context->controller->getLanguages() as $lang) {
-                $id_lang = $lang['id_lang'];
+            foreach (Language::getIDs() as $id_lang) {
                 $conf = Configuration::get($configuration_name, $id_lang);
-                $result["blocksocial_$social"][$id_lang] = $conf;
+                $result[$configuration_name][$id_lang] = $conf;
             }
         }
         return $result;
@@ -229,8 +233,8 @@ class Ps_Socialfollow extends Module implements WidgetInterface
         $value = Configuration::get($name);
         if (!empty($value) && !is_array($value)) {
             $value_localized = [];
-            foreach ($this->context->controller->getLanguages() as $lang) {
-                $value_localized[$lang['id_lang']] = $value;
+            foreach (Language::getIDs() as $id_lang) {
+                $value_localized[$id_lang] = $value;
             }
             Configuration::updateValue($name, $value_localized);
             $value = $value_localized;
@@ -336,9 +340,8 @@ class Ps_Socialfollow extends Module implements WidgetInterface
         $values = [];
         $errors = [];
         foreach (static::SOCIAL_NETWORKS as $social) {
-            foreach ($this->context->controller->getLanguages() as $lang) {
-                $id_lang = $lang['id_lang'];
-                $values[$social][$id_lang] = Tools::getValue("blocksocial_{$social}_{$id_lang}", '');
+            foreach (Language::getIDs() as $id_lang) {
+                $values[$social][$id_lang] = Tools::getValue("BLOCKSOCIAL_{$social}_{$id_lang}", '');
                 $violations = $validator->validate($values[$social][$id_lang], $constraints);
 
                 if (count($violations)) {
@@ -349,7 +352,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
 
         if (empty($errors)) {
             foreach (static::SOCIAL_NETWORKS as $social) {
-                Configuration::updateValue('BLOCKSOCIAL_' . strtoupper($social), $values[$social]);
+                Configuration::updateValue("BLOCKSOCIAL_$social", $values[$social]);
             }
 
             return true;
