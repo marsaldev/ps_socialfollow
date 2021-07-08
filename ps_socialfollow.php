@@ -107,7 +107,14 @@ class Ps_Socialfollow extends Module implements WidgetInterface
                 $html .= $this->displayError(implode('<br />', $result));
             }
         }
-        $html .= $this->renderForm();
+
+        if (Shop::isFeatureActive() && Shop::getContext() != Shop::CONTEXT_SHOP) {
+            $html .=  '<p class="alert alert-warning">' .
+                $this->trans('Please choose a shop to edit the social media links.', array(), 'Modules.Socialfollow.Admin') .
+                '</p>';
+        } else {
+            $html .= $this->renderForm();
+        }
 
         return $html;
     }
