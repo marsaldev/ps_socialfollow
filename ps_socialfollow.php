@@ -99,9 +99,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
                 $this->_clearCache('*');
                 Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules', true, [], [
                     'configure' => $this->name,
-                    'tab_module' => $this->tab,
                     'conf' => 4,
-                    'module_name' => $this->name
                 ]));
             } else {
                 $html .= $this->displayError(implode('<br />', $result));
@@ -200,6 +198,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
         $helper->show_toolbar = false;
         $helper->table = $this->table;
         $helper->submit_action = 'submitModule';
+        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', true, [], ['configure' => $this->name]);
         $helper->tpl_vars = array(
             'fields_value' => $this->getConfigFieldsValues(),
         );
@@ -232,7 +231,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
      * This function is only run once during upgrade, i.e. the first time the user accesses the configuration in the BO
      * after an upgrade of the module to the localized version.
      *
-     * @param $name Name of the configuration setting
+     * @param $name string Name of the configuration setting
      * @return array Configuration value, now localized
      */
     protected function upgradeConfiguration($name)
