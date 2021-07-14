@@ -348,7 +348,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
         $errors = [];
         foreach (static::SOCIAL_NETWORKS as $social) {
             foreach (Language::getIDs() as $id_lang) {
-                $values[$social][$id_lang] = Tools::getValue("BLOCKSOCIAL_{$social}_{$id_lang}", '');
+                $values[$social][$id_lang] = trim(Tools::getValue("BLOCKSOCIAL_{$social}_{$id_lang}", ''));
                 $violations = $validator->validate($values[$social][$id_lang], $constraints);
 
                 if (count($violations)) {
