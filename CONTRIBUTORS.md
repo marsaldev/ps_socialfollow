@@ -25,3 +25,5 @@ GitHub contributors:
  - maximebiloe
  - petyuska
  - thomasbo
+ - Lorenz Meyer
+ - Julie Varisellaz
