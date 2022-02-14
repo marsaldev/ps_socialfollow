@@ -226,12 +226,13 @@ class Ps_Socialfollow extends Module implements WidgetInterface
      * This function is only run once during upgrade, i.e. the first time the user accesses the configuration in the BO
      * after an upgrade of the module to the localized version.
      *
-     * @param $name string Name of the configuration setting
+     * @param string $name Name of the configuration setting
      *
      * @return array Configuration value, now localized
      */
     protected function upgradeConfiguration($name)
     {
+        /** @var string|array $value */
         $value = Configuration::get($name);
         if (!empty($value) && !is_array($value)) {
             $value_localized = [];
