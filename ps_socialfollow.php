@@ -333,7 +333,6 @@ class Ps_Socialfollow extends Module implements WidgetInterface
                 'url' => $sf_linkedin,
             ];
         }
-        
         if ($sf_discord = Configuration::get('BLOCKSOCIAL_DISCORD', $id_lang)) {
             $social_links['discord'] = [
                 'label' => $this->trans('LinkedIn', [], 'Modules.Socialfollow.Shop'),
