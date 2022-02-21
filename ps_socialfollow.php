@@ -36,6 +36,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
         'VIMEO',
         'INSTAGRAM',
         'LINKEDIN',
+        'DISCORD'
     ];
     private $templateFile;
 
@@ -68,6 +69,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
             Configuration::updateValue('BLOCKSOCIAL_VIMEO', '') &&
             Configuration::updateValue('BLOCKSOCIAL_INSTAGRAM', '') &&
             Configuration::updateValue('BLOCKSOCIAL_LINKEDIN', '') &&
+            Configuration::updateValue('BLOCKSOCIAL_DISCORD', '') &&
             $this->registerHook('displayFooter');
     }
 
@@ -81,6 +83,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
             Configuration::deleteByName('BLOCKSOCIAL_VIMEO') &&
             Configuration::deleteByName('BLOCKSOCIAL_INSTAGRAM') &&
             Configuration::deleteByName('BLOCKSOCIAL_LINKEDIN') &&
+            Configuration::deleteByName('BLOCKSOCIAL_DISCORD') &&
             parent::uninstall();
     }
 
@@ -180,6 +183,13 @@ class Ps_Socialfollow extends Module implements WidgetInterface
                         'label' => $this->trans('LinkedIn URL:', [], 'Modules.Socialfollow.Admin'),
                         'name' => 'BLOCKSOCIAL_LINKEDIN',
                         'desc' => $this->trans('Your official LinkedIn account.', [], 'Modules.Socialfollow.Admin'),
+                    ],
+                    [
+                        'type' => 'text',
+                        'lang' => true,
+                        'label' => $this->trans('Discord URL:', [], 'Modules.Socialfollow.Admin'),
+                        'name' => 'BLOCKSOCIAL_Discord',
+                        'desc' => $this->trans('Your official Discord account.', [], 'Modules.Socialfollow.Admin'),
                     ],
                 ],
                 'submit' => [
@@ -321,6 +331,14 @@ class Ps_Socialfollow extends Module implements WidgetInterface
                 'label' => $this->trans('LinkedIn', [], 'Modules.Socialfollow.Shop'),
                 'class' => 'linkedin',
                 'url' => $sf_linkedin,
+            ];
+        }
+        
+        if ($sf_discord = Configuration::get('BLOCKSOCIAL_DISCORD', $id_lang)) {
+            $social_links['discord'] = [
+                'label' => $this->trans('LinkedIn', [], 'Modules.Socialfollow.Shop'),
+                'class' => 'discord',
+                'url' => $sf_discord,
             ];
         }
 
