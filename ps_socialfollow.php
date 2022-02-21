@@ -188,7 +188,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
                         'type' => 'text',
                         'lang' => true,
                         'label' => $this->trans('Discord URL:', [], 'Modules.Socialfollow.Admin'),
-                        'name' => 'BLOCKSOCIAL_Discord',
+                        'name' => 'BLOCKSOCIAL_DISCORD',
                         'desc' => $this->trans('Your official Discord account.', [], 'Modules.Socialfollow.Admin'),
                     ],
                 ],
