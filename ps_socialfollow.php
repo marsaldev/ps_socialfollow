@@ -36,7 +36,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
         'VIMEO',
         'INSTAGRAM',
         'LINKEDIN',
-        'DISCORD'
+        'DISCORD',
     ];
     private $templateFile;
 
