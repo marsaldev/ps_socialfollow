@@ -70,6 +70,7 @@ class Ps_Socialfollow extends Module implements WidgetInterface
             Configuration::updateValue('BLOCKSOCIAL_INSTAGRAM', '') &&
             Configuration::updateValue('BLOCKSOCIAL_LINKEDIN', '') &&
             Configuration::updateValue('BLOCKSOCIAL_DISCORD', '') &&
+            $this->registerHook('actionFrontControllerSetMedia') &&
             $this->registerHook('displayFooter');
     }
 
@@ -344,6 +345,15 @@ class Ps_Socialfollow extends Module implements WidgetInterface
         return [
             'social_links' => $social_links,
         ];
+    }
+    
+    public function hookActionFrontControllerSetMedia()
+    {
+        // Load module CSS to make icons overridable in the theme
+        $this->context->controller->registerStylesheet(
+            'ps_socialfollow_icons',
+            '/modules/'.$this->name.'/views/css/ps_socialfollow.css'
+        );
     }
 
     /**
