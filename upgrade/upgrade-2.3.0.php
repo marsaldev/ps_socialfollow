@@ -29,5 +29,5 @@ if (!defined('_PS_VERSION_')) {
 
 function upgrade_module_2_3_0($object)
 {
-    return (bool) $object->registerHook('actionFrontControllerSetMedia');
+    return (bool) $object->registerHook('actionFrontControllerSetMedia') && Configuration::updateValue('BLOCKSOCIAL_DISCORD', '');
 }
